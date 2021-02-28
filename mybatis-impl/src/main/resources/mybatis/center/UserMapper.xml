@@ -10,7 +10,7 @@
         <result column="modified_date" property="modifiedDate" jdbcType="TIMESTAMP"/>
     </resultMap>
 
-    <sql id="table_name">user</sql>
+    <sql id="table_name">`user`</sql>
 
     <sql id="columns">
         `id`, <include refid="insert_columns"/>
@@ -24,10 +24,11 @@
         INSERT INTO
         <include refid="table_name"/>
         (
-        <include refid="insert_columns"/>
+        <include refid="columns"/>
         )
         VALUES
         (
+        #{item.id},
         #{item.username},
         #{item.phone},
         #{item.createdDate},
