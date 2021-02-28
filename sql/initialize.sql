@@ -5,23 +5,6 @@ DROP DATABASE if EXISTS `hor-shard-center`;
 CREATE DATABASE IF NOT EXISTS `hor-shard-center` default charset utf8 COLLATE utf8_general_ci;
 USE `hor-shard-center`;
 
-DROP TABLE IF EXISTS `datasource_sharding`;
-CREATE TABLE `datasource_sharding`  (
-                                        `id` int(11) NOT NULL AUTO_INCREMENT,
-                                        `server_type` int(11) NULL DEFAULT NULL COMMENT '数据库类型',
-                                        `server_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
-                                        `modulo` varchar (64) NULL DEFAULT NULL COMMENT '分片配置',
-                                        `enable` tinyint(2) NULL DEFAULT 1 COMMENT '是否启用，1：启用；0：禁用',
-                                        `created_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                                        PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
-INSERT INTO `datasource_sharding`(`server_type`, `server_name`, `modulo`, `enable`) VALUES (1, 'db_center', NULL, 1);
-INSERT INTO `datasource_sharding`(`server_type`, `server_name`, `modulo`, `enable`) VALUES (2, 'db_ds1_master', '0-3,5', 1);
-INSERT INTO `datasource_sharding`(`server_type`, `server_name`, `modulo`, `enable`) VALUES (3, 'db_ds1_slave', '0-3,5', 1);
-INSERT INTO `datasource_sharding`(`server_type`, `server_name`, `modulo`, `enable`) VALUES (2, 'db_ds2_master', '4,6-7', 1);
-INSERT INTO `datasource_sharding`(`server_type`, `server_name`, `modulo`, `enable`) VALUES (3, 'db_ds1_slave', '4,6-7', 1);
-
 CREATE TABLE `user` (
                         `id` bigint(64) NOT NULL AUTO_INCREMENT,
                         `username` varchar(255) DEFAULT NULL,

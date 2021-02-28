@@ -1,6 +1,6 @@
 package com.github.jitwxs.sharding.horizontal.jdbcimpl.dao.impl;
 
-import com.github.jitwxs.sharding.horizontal.jdbcimpl.config.DataSourceConfig;
+import com.github.jitwxs.sharding.horizontal.jdbcimpl.datasource.config.ServerConfig;
 import com.github.jitwxs.sharding.horizontal.jdbcimpl.dao.OrderDao;
 import com.github.jitwxs.sharding.horizontal.jdbcimpl.datasource.Db;
 import com.github.jitwxs.sharding.horizontal.jdbcimpl.datasource.DbAssist;
@@ -21,7 +21,7 @@ import java.util.Map;
 @Repository
 public class OrderDaoImpl implements OrderDao {
     @Autowired
-    private DataSourceConfig dataSourceConfig;
+    private ServerConfig serverConfig;
 
     private String buildTable(final int modulo) {
         return "order_" + modulo;
@@ -29,32 +29,32 @@ public class OrderDaoImpl implements OrderDao {
 
     @Override
     public long insertTransaction(Order order) throws SQLException {
-        int modulo = dataSourceConfig.getModulo(order.getUserId());
+        int modulo = serverConfig.getModulo(order.getUserId());
 
         String sql = "INSERT INTO " + buildTable(modulo) + " (user_id, amount, created_date) VALUES (?,?,now())";
         Object[] objects = {order.getUserId(), order.getAmount()};
-        return Db.updateTransaction(sql, objects, ShardingContext.master(modulo));
+        return Db.updateTransaction(sql, objects, ShardingContext.sharding(modulo));
     }
 
     @Override
     public long insert(Order order) {
-        int modulo = dataSourceConfig.getModulo(order.getUserId());
+        int modulo = serverConfig.getModulo(order.getUserId());
 
         String sql = "INSERT INTO " + buildTable(modulo) + " (user_id, amount, created_date) VALUES (?,?,now())";
         Object[] objects = {order.getUserId(), order.getAmount()};
-        return Db.update(sql, objects, ShardingContext.master(modulo));
+        return Db.update(sql, objects, ShardingContext.sharding(modulo));
     }
 
     @Override
     public Order selectById(long orderId, int modulo) {
         String sql = "SELECT * FROM " + buildTable(modulo) + " WHERE id = ?";
-        List<Map<String, Object>> mapList = Db.query(sql, new Object[]{orderId}, ShardingContext.master(modulo));
+        List<Map<String, Object>> mapList = Db.query(sql, new Object[]{orderId}, ShardingContext.sharding(modulo));
         return CollectionUtils.isEmpty(mapList) ? null : DbAssist.convert(mapList.get(0), Order.class);
     }
 
     @Override
     public long removeAll(int modulo) {
         String sql = "DELETE FROM " + buildTable(modulo) + " WHERE 1 = 1";
-        return Db.update(sql, null, ShardingContext.master(modulo));
+        return Db.update(sql, null, ShardingContext.sharding(modulo));
     }
 }

@@ -25,13 +25,12 @@
 
 (1) center 库
 
-- `datasource_sharding` 分库分表配置
 - `user` 业务表，用户信息
 
 (2) shard 库
 
-- `order_{shard}` 业务表，订单信息
-- `order_{shard}` 业务表，订单详情信息
+- `order_{modulo}` 业务表，订单信息
+- `order_{modulo}` 业务表，订单详情信息
 
 ### 4 运行程序
 

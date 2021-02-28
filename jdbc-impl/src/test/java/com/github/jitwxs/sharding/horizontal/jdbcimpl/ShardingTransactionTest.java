@@ -1,6 +1,6 @@
 package com.github.jitwxs.sharding.horizontal.jdbcimpl;
 
-import com.github.jitwxs.sharding.horizontal.jdbcimpl.config.DataSourceConfig;
+import com.github.jitwxs.sharding.horizontal.jdbcimpl.datasource.config.ServerConfig;
 import com.github.jitwxs.sharding.horizontal.jdbcimpl.dao.OrderDao;
 import com.github.jitwxs.sharding.horizontal.jdbcimpl.dao.OrderDescDao;
 import com.github.jitwxs.sharding.horizontal.jdbcimpl.dao.UserDao;
@@ -22,7 +22,7 @@ import java.sql.SQLException;
  * @author jitwxs
  * @date 2020年02月15日 19:26
  */
-public class ShardTransactionTest extends com.github.jitwxs.sharding.horizontal.jdbcimpl.BaseTest {
+public class ShardingTransactionTest extends com.github.jitwxs.sharding.horizontal.jdbcimpl.BaseTest {
     @Autowired
     private UserDao userDao;
     @Autowired
@@ -30,7 +30,7 @@ public class ShardTransactionTest extends com.github.jitwxs.sharding.horizontal.
     @Autowired
     private OrderDescDao orderDescDao;
     @Autowired
-    private DataSourceConfig dataSourceConfig;
+    private ServerConfig serverConfig;
 
     /**
      * 事务提交
@@ -41,12 +41,12 @@ public class ShardTransactionTest extends com.github.jitwxs.sharding.horizontal.
     public void testCommit() {
         User user = User.builder().username(RandomStringUtils.randomAscii(4)).phone(RandomStringUtils.randomNumeric(5)).build();
         long userId = userDao.insert(user);
-        int modulo = dataSourceConfig.getModulo(userId);
+        int modulo = serverConfig.getModulo(userId);
         orderDao.removeAll(modulo);
         orderDescDao.removeAll(modulo);
 
         long orderId = 0L, orderDescId = 0L;
-        ShardingContext context = ShardingContext.master(modulo);
+        ShardingContext context = ShardingContext.sharding(modulo);
         try {
             Db.beginTransaction(context);
 
@@ -82,12 +82,12 @@ public class ShardTransactionTest extends com.github.jitwxs.sharding.horizontal.
     public void testRollback() {
         User user = User.builder().username(RandomStringUtils.randomAscii(4)).phone(RandomStringUtils.randomNumeric(5)).build();
         long userId = userDao.insert(user);
-        int modulo = dataSourceConfig.getModulo(userId);
+        int modulo = serverConfig.getModulo(userId);
         orderDao.removeAll(modulo);
         orderDescDao.removeAll(modulo);
 
         long orderId = 0L, orderDescId = 0L;
-        ShardingContext context = ShardingContext.master(modulo);
+        ShardingContext context = ShardingContext.sharding(modulo);
         try {
             Db.beginTransaction(context);
 

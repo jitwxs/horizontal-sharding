@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.github.jitwxs.sharding.horizontal.mybatisimpl.mapper.center.UserMapper">
+
+    <resultMap id="resultMap" type="com.github.jitwxs.sharding.horizontal.mybatisimpl.entiy.User">
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="username" property="username" jdbcType="VARCHAR"/>
+        <result column="phone" property="phone" jdbcType="VARCHAR"/>
+        <result column="created_date" property="createdDate" jdbcType="TIMESTAMP"/>
+        <result column="modified_date" property="modifiedDate" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="table_name">user</sql>
+
+    <sql id="columns">
+        `id`, <include refid="insert_columns"/>
+    </sql>
+
+    <sql id="insert_columns">
+        `username`, `phone`, `created_date`, `modified_date`
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO
+        <include refid="table_name"/>
+        (
+        <include refid="insert_columns"/>
+        )
+        VALUES
+        (
+        #{item.username},
+        #{item.phone},
+        #{item.createdDate},
+        #{item.modifiedDate}
+        )
+    </insert>
+
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO
+        <include refid="table_name"/>
+        (
+        <include refid="insert_columns"/>
+        )
+        VALUES
+        <foreach collection="userList" item="item" separator="," open="(" close=")">
+            (
+            #{item.username},
+            #{item.phone},
+            #{item.createdDate},
+            #{item.modifiedDate}
+            )
+        </foreach>
+    </insert>
+
+    <update id="updatePhone">
+        UPDATE <include refid="table_name"/> SET `phone` = #{phone} WHERE `id` = #{userId}
+    </update>
+
+    <delete id="removeAll">
+        TRUNCATE TABLE <include refid="table_name"/>
+    </delete>
+
+    <select id="listAll" resultMap="resultMap">
+        SELECT  <include refid="columns"/> FROM <include refid="table_name"/>
+    </select>
+
+    <select id="selectByUserId" resultMap="resultMap">
+        SELECT  <include refid="columns"/> FROM <include refid="table_name"/> WHERE `id` = #{userId}
+    </select>
+</mapper>

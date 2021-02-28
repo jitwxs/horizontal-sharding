@@ -1,10 +1,10 @@
 package com.github.jitwxs.sharding.horizontal.jdbcimpl;
 
+import com.github.jitwxs.sharding.horizontal.common.DateUtils;
 import com.github.jitwxs.sharding.horizontal.jdbcimpl.dao.UserDao;
 import com.github.jitwxs.sharding.horizontal.jdbcimpl.datasource.Db;
 import com.github.jitwxs.sharding.horizontal.jdbcimpl.datasource.ShardingContext;
 import com.github.jitwxs.sharding.horizontal.jdbcimpl.entiy.User;
-import com.github.jitwxs.sharding.horizontal.jdbcimpl.util.DateUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.Assert;

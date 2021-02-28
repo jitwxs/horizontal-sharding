@@ -1,6 +1,6 @@
 package com.github.jitwxs.sharding.horizontal.jdbcimpl;
 
-import com.github.jitwxs.sharding.horizontal.jdbcimpl.config.DataSourceConfig;
+import com.github.jitwxs.sharding.horizontal.jdbcimpl.datasource.config.ServerConfig;
 import com.github.jitwxs.sharding.horizontal.jdbcimpl.dao.OrderDao;
 import com.github.jitwxs.sharding.horizontal.jdbcimpl.dao.UserDao;
 import com.github.jitwxs.sharding.horizontal.jdbcimpl.datasource.Db;
@@ -26,7 +26,7 @@ public class DCSTransactionTest extends BaseTest {
     @Autowired
     private OrderDao orderDao;
     @Autowired
-    private DataSourceConfig dataSourceConfig;
+    private ServerConfig serverConfig;
 
     /**
      * 跨库事务，不支持
@@ -37,11 +37,11 @@ public class DCSTransactionTest extends BaseTest {
     public void testDCSTransaction() {
         User user = User.builder().username(RandomStringUtils.randomAscii(4)).phone(RandomStringUtils.randomNumeric(5)).build();
         long userId = userDao.insert(user);
-        int modulo = dataSourceConfig.getModulo(userId);
+        int modulo = serverConfig.getModulo(userId);
 
         Throwable ex = null;
 
-        ShardingContext context = ShardingContext.master(modulo);
+        ShardingContext context = ShardingContext.sharding(modulo);
         try {
             Db.beginTransaction(context);
 

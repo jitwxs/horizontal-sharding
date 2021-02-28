@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.github.jitwxs.sharding.horizontal.mybatisimpl.mapper.shard.OrderDescMapper">
+
+    <resultMap id="resultMap" type="com.github.jitwxs.sharding.horizontal.mybatisimpl.entiy.OrderDesc">
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="order_id" property="orderId" jdbcType="BIGINT"/>
+        <result column="user_id" property="userId" jdbcType="BIGINT"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="table_name">order_desc_${modulo}</sql>
+
+    <sql id="columns">
+        `id`, <include refid="insert_columns"/>
+    </sql>
+
+    <sql id="insert_columns">
+        `order_id`, `user_id`, `description`
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="item.id">
+        INSERT INTO
+        <include refid="table_name"/>
+        (
+        <include refid="insert_columns"/>
+        )
+        VALUES
+        (
+        #{item.orderId},
+        #{item.userId},
+        #{item.description}
+        )
+    </insert>
+
+    <select id="selectById" resultMap="resultMap">
+        SELECT <include refid="columns"/> FROM <include refid="table_name"/> WHERE `id` = #{orderId}
+    </select>
+
+    <delete id="removeAll">
+        TRUNCATE TABLE <include refid="table_name"/>
+    </delete>
+</mapper>

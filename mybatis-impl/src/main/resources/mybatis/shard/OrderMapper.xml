@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.github.jitwxs.sharding.horizontal.mybatisimpl.mapper.shard.OrderMapper">
+
+    <resultMap id="resultMap" type="com.github.jitwxs.sharding.horizontal.mybatisimpl.entiy.Order">
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="user_id" property="userId" jdbcType="BIGINT"/>
+        <result column="amount" property="amount" jdbcType="DECIMAL"/>
+        <result column="created_date" property="createdDate" jdbcType="TIMESTAMP"/>
+        <result column="modified_date" property="modifiedDate" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="table_name">order_${modulo}</sql>
+
+    <sql id="columns">
+        `id`, <include refid="insert_columns"/>
+    </sql>
+
+    <sql id="insert_columns">
+        `user_id`, `amount`, `created_date`, `modified_date`
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="item.id">
+        INSERT INTO
+        <include refid="table_name"/>
+        (
+        <include refid="insert_columns"/>
+        )
+        VALUES
+        (
+        #{item.userId},
+        #{item.amount},
+        #{item.createdDate},
+        #{item.modifiedDate}
+        )
+    </insert>
+
+    <select id="selectById" resultMap="resultMap">
+        SELECT <include refid="columns"/> FROM <include refid="table_name"/> WHERE `id` = #{orderId}
+    </select>
+
+    <delete id="removeAll">
+        TRUNCATE TABLE <include refid="table_name"/>
+    </delete>
+</mapper>

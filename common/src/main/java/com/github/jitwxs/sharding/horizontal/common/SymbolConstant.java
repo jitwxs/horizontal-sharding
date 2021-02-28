@@ -1,4 +1,4 @@
-package com.github.jitwxs.sharding.horizontal.jdbcimpl.constant;
+package com.github.jitwxs.sharding.horizontal.common;
 
 /**
  * 符号常量

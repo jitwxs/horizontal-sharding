@@ -1,6 +1,6 @@
 package com.github.jitwxs.sharding.horizontal.jdbcimpl;
 
-import com.github.jitwxs.sharding.horizontal.jdbcimpl.config.DataSourceConfig;
+import com.github.jitwxs.sharding.horizontal.jdbcimpl.datasource.config.ServerConfig;
 import com.github.jitwxs.sharding.horizontal.jdbcimpl.dao.OrderDao;
 import com.github.jitwxs.sharding.horizontal.jdbcimpl.dao.UserDao;
 import com.github.jitwxs.sharding.horizontal.jdbcimpl.entiy.Order;
@@ -18,13 +18,13 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @date 2021年02月28日 15:15
  */
 @Slf4j
-public class ShardCrudTest extends BaseTest {
+public class ShardingCrudTest extends BaseTest {
     @Autowired
     private OrderDao orderDao;
     @Autowired
     private UserDao userDao;
     @Autowired
-    private DataSourceConfig dataSourceConfig;
+    private ServerConfig serverConfig;
 
     @Test
     public void insertTest() {
@@ -40,7 +40,7 @@ public class ShardCrudTest extends BaseTest {
         Order order = Order.builder().userId(userId).amount(amount).build();
         long orderId = orderDao.insert(order);
 
-        int modulo = dataSourceConfig.getModulo(userId);
+        int modulo = serverConfig.getModulo(userId);
         Order order1 = orderDao.selectById(orderId, modulo);
         Assert.assertNotNull(order1);
         Assert.assertEquals(amount, order1.getAmount(), 0.000001);
@@ -61,7 +61,7 @@ public class ShardCrudTest extends BaseTest {
         Order order = Order.builder().userId(userId).amount(amount).build();
         long orderId = orderDao.insert(order);
 
-        int modulo = dataSourceConfig.getModulo(userId);
+        int modulo = serverConfig.getModulo(userId);
         Order order1 = orderDao.selectById(orderId, modulo);
         Assert.assertNotNull(order1);
         Assert.assertEquals(amount, order1.getAmount(), 0.000001);

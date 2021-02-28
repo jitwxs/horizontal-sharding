@@ -12,16 +12,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ShardingContext {
-    private Server.Type type;
+    private ServerTypeEnum type;
     private Integer modulo;
 
-    public static ShardingContext master(int modulo) {
-        return new ShardingContext(Server.Type.MASTER, modulo);
+    public static ShardingContext sharding(int modulo) {
+        return new ShardingContext(ServerTypeEnum.SHARDING, modulo);
     }
 
-    public static ShardingContext slave(int modulo) {
-        return new ShardingContext(Server.Type.SLAVE, modulo);
-    }
-
-    public static final ShardingContext CENTER = new ShardingContext(Server.Type.CENTER, null);
+    public static final ShardingContext CENTER = new ShardingContext(ServerTypeEnum.CENTER, null);
 }

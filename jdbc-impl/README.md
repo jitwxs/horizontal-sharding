@@ -11,8 +11,8 @@
 ### 2 测试程序
 
 - `com.github.jitwxs.sharding.horizontal.jdbcimpl.CenterCrudTest` 中央库 CRUD 测试
-- `com.github.jitwxs.sharding.horizontal.jdbcimpl.ShardCrudTest` 分库 CRUD 测试
+- `com.github.jitwxs.sharding.horizontal.jdbcimpl.ShardingCrudTest` 分库 CRUD 测试
 - `com.github.jitwxs.sharding.horizontal.jdbcimpl.CenterTransactionTest` 中央库事务测试
-- `com.github.jitwxs.sharding.horizontal.jdbcimpl.ShardTransactionTest` 分库事务测试
+- `com.github.jitwxs.sharding.horizontal.jdbcimpl.ShardingTransactionTest` 分库事务测试
 - `com.github.jitwxs.sharding.horizontal.jdbcimpl.BatchInsertTest` 批量插入性能测试
 - `com.github.jitwxs.sharding.horizontal.jdbcimpl.DCSTransactionTest` 跨库事务测试

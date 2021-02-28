@@ -1,6 +1,6 @@
 package com.github.jitwxs.sharding.horizontal.jdbcimpl.dao.impl;
 
-import com.github.jitwxs.sharding.horizontal.jdbcimpl.config.DataSourceConfig;
+import com.github.jitwxs.sharding.horizontal.jdbcimpl.datasource.config.ServerConfig;
 import com.github.jitwxs.sharding.horizontal.jdbcimpl.dao.OrderDescDao;
 import com.github.jitwxs.sharding.horizontal.jdbcimpl.datasource.Db;
 import com.github.jitwxs.sharding.horizontal.jdbcimpl.datasource.DbAssist;
@@ -21,7 +21,7 @@ import java.util.Map;
 @Repository
 public class OrderDescDaoImpl implements OrderDescDao {
     @Autowired
-    private DataSourceConfig dataSourceConfig;
+    private ServerConfig serverConfig;
 
     private static String buildTable(int modulo) {
         return "order_desc_" + modulo;
@@ -29,23 +29,23 @@ public class OrderDescDaoImpl implements OrderDescDao {
 
     @Override
     public long insertTransaction(OrderDesc orderDesc) throws SQLException {
-        int modulo = dataSourceConfig.getModulo(orderDesc.getUserId());
+        int modulo = serverConfig.getModulo(orderDesc.getUserId());
 
         String sql = "INSERT INTO " + buildTable(modulo) + " (user_id, order_id, description) VALUES (?,?,?)";
         Object[] objects = {orderDesc.getUserId(), orderDesc.getOrderId(), orderDesc.getDescription()};
-        return Db.updateTransaction(sql, objects, ShardingContext.master(modulo));
+        return Db.updateTransaction(sql, objects, ShardingContext.sharding(modulo));
     }
 
     @Override
     public long removeAll(int modulo) {
         String sql = "DELETE FROM " + buildTable(modulo) + " WHERE 1 = 1";
-        return Db.update(sql, null, ShardingContext.master(modulo));
+        return Db.update(sql, null, ShardingContext.sharding(modulo));
     }
 
     @Override
     public OrderDesc selectById(long id, int modulo) {
         String sql = "SELECT * FROM " + buildTable(modulo) + " WHERE id = ?";
-        List<Map<String, Object>> mapList = Db.query(sql, new Object[]{id}, ShardingContext.master(modulo));
+        List<Map<String, Object>> mapList = Db.query(sql, new Object[]{id}, ShardingContext.sharding(modulo));
         return CollectionUtils.isEmpty(mapList) ? null : DbAssist.convert(mapList.get(0), OrderDesc.class);
     }
 }

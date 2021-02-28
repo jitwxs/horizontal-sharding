@@ -1,13 +1,14 @@
 package com.github.jitwxs.sharding.horizontal.jdbcimpl.datasource;
 
-import com.github.jitwxs.sharding.horizontal.jdbcimpl.constant.SymbolConstant;
-import com.github.jitwxs.sharding.horizontal.jdbcimpl.util.DateUtils;
+import com.github.jitwxs.sharding.horizontal.common.DateUtils;
+import com.github.jitwxs.sharding.horizontal.common.SymbolConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.*;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -18,6 +19,21 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public class Db {
+    private static final Map<ServerTypeEnum, Map<Integer, Server>> INSTANCE_MAP = new HashMap<>();
+
+    public static void initServer(final List<Server> serverList) {
+        for (Server server : serverList) {
+            final List<Integer> moduloList = server.getModuloList();
+
+            moduloList.forEach(modulo -> INSTANCE_MAP.computeIfAbsent(server.getType(), i -> new HashMap<>()).put(modulo, server));
+            log.info("Db Sharding: {} --> {}", moduloList, ((com.zaxxer.hikari.HikariDataSource)server.getDataSource()).getJdbcUrl());
+        }
+    }
+
+    public static Server getServer(final ShardingContext context) {
+        return INSTANCE_MAP.getOrDefault(context.getType(), new HashMap<>()).get(context.getModulo());
+    }
+
     /**
      * 更新操作
      * @author jitwxs
@@ -51,8 +67,7 @@ public class Db {
             if(StringUtils.isNotEmpty(message) && message.contains("Duplicate entry")) {
                 log.error("Duplicate entry, error sql: {}, params: {}", sql, DbAssist.buildParams(params));
             } else {
-                log.error("Db#update execute error, server: {}, sql: {}, params:{}",
-                        Server.getServerName(context.getType(), context.getModulo()), sql, DbAssist.buildParams(params), e);
+                log.error("Db#update execute error, context: {}, sql: {}, params:{}", context, sql, DbAssist.buildParams(params), e);
             }
             return -1;
         } finally {
@@ -204,15 +219,13 @@ public class Db {
 
             long costTime = DateUtils.diff(startTime);
             if (costTime > 2000) {
-                log.warn("Db#query execute too long, server: {}, costTime:{}, connectTime:{}, sql: {}, params:{}",
-                        Server.getServerName(context.getType(), context.getModulo()), costTime, connectTime, sql, DbAssist.buildParams(params));
+                log.warn("Db#query execute too long, context: {}, costTime:{}, connectTime:{}, sql: {}, params:{}", context, costTime, connectTime, sql, DbAssist.buildParams(params));
             }
 
             return DbAssist.getResultMap(resultSet);
 
         } catch (Exception e) {
-            log.error("Db#query error, sql:{}, server:{}, params:{}", sql,
-                    Server.getServerName(context.getType(), context.getModulo()), DbAssist.buildParams(params), e);
+            log.error("Db#query error, sql:{}, context:{}, params:{}", sql, context, DbAssist.buildParams(params), e);
 
             return Collections.emptyList();
         } finally {
@@ -252,8 +265,7 @@ public class Db {
 
             long costTime = DateUtils.diff(startTime);
             if (costTime > 2000) {
-                log.warn("Db#queryTransaction execute too long, server: {}, costTime:{}, connectTime:{}, sql: {}, params:{}",
-                        Server.getServerName(context.getType(), context.getModulo()), costTime, connectTime, sql, DbAssist.buildParams(params));
+                log.warn("Db#queryTransaction execute too long, context: {}, costTime:{}, connectTime:{}, sql: {}, params:{}", context, costTime, connectTime, sql, DbAssist.buildParams(params));
             }
 
             return DbAssist.getResultMap(resultSet);
@@ -317,8 +329,7 @@ public class Db {
 
         long timeCost = endTime - startTime;
         if (timeCost > 2000) {
-            log.warn("Db#beginTransaction too long, server: {}, timeCost:{}",
-                    Server.getServerName(context.getType(), context.getModulo()), timeCost);
+            log.warn("Db#beginTransaction too long, context: {}, timeCost:{}", context, timeCost);
         }
     }
 
@@ -357,10 +368,6 @@ public class Db {
         } finally {
             closeConn(context);
         }
-    }
-
-    private static Server getServer(ShardingContext context) {
-        return Server.getInstance(context.getType(), context.getModulo());
     }
 
     private static Connection getPoolConnection(Server server) throws SQLException {
