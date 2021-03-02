@@ -12,21 +12,18 @@
     <sql id="table_name">order_desc_${modulo}</sql>
 
     <sql id="columns">
-        `id`, <include refid="insert_columns"/>
-    </sql>
-
-    <sql id="insert_columns">
-        `order_id`, `user_id`, `description`
+        `id`, `order_id`, `user_id`, `description`
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="item.id">
         INSERT INTO
         <include refid="table_name"/>
         (
-        <include refid="insert_columns"/>
+        <include refid="columns"/>
         )
         VALUES
         (
+        #{item.id},
         #{item.orderId},
         #{item.userId},
         #{item.description}
@@ -34,7 +31,7 @@
     </insert>
 
     <select id="selectById" resultMap="resultMap">
-        SELECT <include refid="columns"/> FROM <include refid="table_name"/> WHERE `id` = #{orderId}
+        SELECT <include refid="columns"/> FROM <include refid="table_name"/> WHERE `id` = #{id}
     </select>
 
     <delete id="removeAll">

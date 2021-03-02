@@ -6,10 +6,10 @@ import com.github.jitwxs.sharding.horizontal.mybatisimpl.mapper.center.UserMappe
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.Commit;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 中央库事务测试
@@ -20,24 +20,52 @@ import org.springframework.transaction.annotation.Transactional;
 public class CenterTransactionTest extends BaseTest {
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private CenterTransactionLogic centerTransactionLogic;
+
+    @Before
+    public void cleanUser() {
+        userMapper.removeAll();
+    }
 
     /**
      * 事务提交
-     * @author jitwxs
-     * @date 2020/2/16 17:42
      */
     @Test
-    @Transactional(transactionManager = "centerTransactionManager", rollbackFor = Exception.class)
-    @Commit // junit 下必须要 commit，实际使用不需要
     public void testCommit() {
         long id1 = DateUtils.now(), id2 = id1 + RandomUtils.nextInt();
 
         User user1 = User.builder().id(id1).username(RandomStringUtils.randomAscii(4)).phone(RandomStringUtils.randomNumeric(5)).build();
         User user2 = User.builder().id(id2).username(RandomStringUtils.randomAscii(4)).phone(RandomStringUtils.randomNumeric(5)).build();
 
-        userMapper.insert(user1);
-        userMapper.insert(user2);
+        centerTransactionLogic.testCommitLogic(user1, user2);
 
-        log.error("手动查询数据库，是否存在记录：{},{}，期望存在", user1.getId(), user2.getId());
+        user1 = userMapper.selectByUserId(id1);
+        Assert.assertNotNull(user1);
+
+        user2 = userMapper.selectByUserId(id2);
+        Assert.assertNotNull(user2);
+    }
+
+    /**
+     * 事务回滚
+     */
+    @Test
+    public void testRollback() {
+        long id1 = DateUtils.now(), id2 = id1 + RandomUtils.nextInt();
+
+        User user1 = User.builder().id(id1).username(RandomStringUtils.randomAscii(4)).phone(RandomStringUtils.randomNumeric(5)).build();
+        User user2 = User.builder().id(id2).username(RandomStringUtils.randomAscii(4)).phone(RandomStringUtils.randomNumeric(5)).build();
+
+        try {
+            centerTransactionLogic.testRollbackLogic(user1, user2);
+        } catch (Exception e) {
+        }
+
+        user1 = userMapper.selectByUserId(id1);
+        Assert.assertNull(user1);
+
+        user2 = userMapper.selectByUserId(id2);
+        Assert.assertNull(user2);
     }
 }

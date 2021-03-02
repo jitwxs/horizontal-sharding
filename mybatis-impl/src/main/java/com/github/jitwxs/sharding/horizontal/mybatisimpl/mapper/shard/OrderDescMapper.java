@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface OrderDescMapper {
-    void insert(@Param("item") OrderDesc orderDesc);
+    void insert(@Param("modulo") int modulo, @Param("item") OrderDesc orderDesc);
 
     long removeAll(@Param("modulo") int modulo);
 
